@@ -38,7 +38,7 @@ const delay = (ms: number) => {
 };
 
 const scrapeProducts = async (page: any) => {
-  let list: { product: string; price: string; imageURL: string | undefined }[] =
+  let list: { product: string; details: string; price: string; url: string | undefined; imageURL: string | undefined }[] =
     [];
   const $ = cheerio.load(await page.content());
   if (!(await page.$("div.sc-cf3a75ab-0.gVYcPP article"))) {
@@ -57,9 +57,11 @@ const scrapeProducts = async (page: any) => {
   articleTags.each((i, el) => {
     const imageURL = $(el).find("img").attr("src");
     const product = $(el).find("p.sc-2e9036-0.cNsIaf").text();
+    const details = $(el).find("p.sc-b3dc936d-9.BunLw").text();
     const priceString = $(el).find("span.sc-3ffcdfc9-1.cHHHJV").text();
+    const url = $(el).find("a.sc-d9c28d7f-0.btOvGx").attr("href");
     const price = priceString.replace("CHF", "");
-    list.push({ product, price, imageURL });
+    list.push({ product, details, price, url, imageURL });
   });
   return list;
 };
