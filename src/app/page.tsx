@@ -28,23 +28,25 @@ export default function Home() {
         Get products
       </button>
       {loading && <p>Loading...</p>}
-      <ul className="flex flex-wrap gap-8 w-full">
-        {(data as { imageURL: string; product: string; price: string }[]).map(
-          (item, index) => (
-            <li key={index} className="flex w-1/4 gap-2">
-              <img
-                src={"https://www.galaxus.ch" + item.imageURL}
-                alt={item.product}
-                className="h-32"
-              />
-              <div className="flex flex-col">
-                <p>{item.product}</p>
-                <p>{item.price}</p>
-              </div>
-            </li>
-          )
-        )}
-      </ul>
+      {data.length > 0 && !loading && (
+        <ul className="flex flex-wrap gap-8 w-full">
+          {(data as { imageURL: string; product: string; price: string }[]).map(
+            (item, index) => (
+              <li key={index} className="flex w-1/4 gap-2">
+                <img
+                  src={"https://www.galaxus.ch" + item.imageURL}
+                  alt={item.product}
+                  className="h-32"
+                />
+                <div className="flex flex-col">
+                  <p>{item.product}</p>
+                  <p>{item.price}</p>
+                </div>
+              </li>
+            )
+          )}
+        </ul>
+      )}
     </main>
   );
 }
