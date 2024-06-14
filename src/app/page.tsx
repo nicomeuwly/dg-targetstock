@@ -5,6 +5,8 @@ export default function Home() {
   const [data, setData] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [time, setTime] = useState(0);
+  const [running, setRunning] = useState(false);
 
   const getProducts = async () => {
     setData([]);
@@ -21,26 +23,35 @@ export default function Home() {
   };
   const getCategories = async () => {
     setCategories([]);
+    setTime(0);
+    setRunning(true);
     try {
       const res = await fetch("/api/data/categories");
       const data = await res.json();
       setCategories(data);
+      setRunning(false);
     } catch (error) {
       console.error("Failed to fetch data:", error);
     }
   };
-
   useEffect(() => {
-    getCategories();
-  }, []);
+    if (running) {
+      const interval = setInterval(() => {
+        setTime((time) => time + 1);
+      }, 1000);
+      return () => clearInterval(interval);
+    }
+  });
   return (
     <main className="w-screen h-screen">
       <header className="flex justify-between items-center bg-white shadow-md w-full p-4">
         <div className="flex items-center gap-2">
           <img src="/logo.png" alt="DG-Logo" className="h-12" />
-          <h1 className="text-xl h-fit">DG-StockFlow</h1>
+          <h1 className="text-xl h-fit">Target Stock</h1>
         </div>
-        <p>{categories.length} categories</p>
+        <p>
+          {categories.length} categories (Time : {time} sec)
+        </p>
         <div className="flex gap-8">
           <button
             onClick={getProducts}
@@ -49,7 +60,17 @@ export default function Home() {
             Get products
           </button>
           <button
-            onClick={() => setData([])}
+            onClick={getCategories}
+            className="rounded-md p-2 bg-gray-700 hover:bg-gray-900 text-white"
+          >
+            Get categories
+          </button>
+          <button
+            onClick={() => {
+              setData([]);
+              setCategories([]);
+              setTime(0);
+            }}
             className="rounded-md p-2 bg-gray-700 hover:bg-gray-900 text-white"
           >
             Delete data

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "DG-StockFlow",
+  title: "DG-TargetStock",
   description: "Web-based solution to automate target stock in Digitec shops",
 };
 
