@@ -13,6 +13,7 @@ const delay = (ms: number) => {
 const scrapeProducts = async (page: any) => {
   const selector = "div.sc-5d2f6f43-1.jwLEDS article";
   let list: {
+    id: string | undefined;
     product: string;
     details: string;
     price: string;
@@ -39,8 +40,9 @@ const scrapeProducts = async (page: any) => {
     const details = $(el).find("p.sc-b3dc936d-9.BunLw").text();
     const priceString = $(el).find("span.sc-3ffcdfc9-1.cHHHJV").text();
     const url = $(el).find("a.sc-d9c28d7f-0.btOvGx").attr("href");
+    const id = url?.match(/[^-]*$/)?.pop()?.slice(0, 8);
     const price = priceString.replace("CHF", "");
-    list.push({ product, details, price, url, imageURL });
+    list.push({ id, product, details, price, url, imageURL });
   });
   return list;
 };
