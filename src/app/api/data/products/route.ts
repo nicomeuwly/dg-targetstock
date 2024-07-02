@@ -12,7 +12,7 @@ export async function GET() {
     });
     const list = await openProductsPage(
       browser,
-      "https://www.digitec.ch/fr/s1/producttype/telephone-portable-24?filter=t_off%3DInStock&so=15"
+      "https://www.galaxus.ch/fr/s7/producttype/nutrition-sportive-2800"
     );
     await browser.close();
     const data = JSON.stringify(list);

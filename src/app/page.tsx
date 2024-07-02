@@ -88,6 +88,7 @@ export default function Home() {
             {(
               data as {
                 imageURL: string;
+                brand: string;
                 product: string;
                 details: string;
                 price: string;
@@ -109,7 +110,7 @@ export default function Home() {
                 />
                 <div className="flex flex-col">
                   <p className="text-xl font-bold text-red-600">{item.price}</p>
-                  <p>{item.product}</p>
+                  <p><strong>{item.brand}</strong> {item.product}</p>
                   <p className="text-xs">{item.details}</p>
                 </div>
               </li>

@@ -10,44 +10,62 @@ const delay = (ms: number) => {
   });
 };
 
-const scrapeProducts = async (page: any) => {
+type Product = {
+  id: string | undefined;
+  brand: string;
+  product: string;
+  details: string;
+  price: string;
+  url: string | undefined;
+  imageURL: string | undefined;
+};
+
+const scrapeProducts = async (page: any): Promise<Product[]> => {
   const selector = "div.sc-5d2f6f43-1.jwLEDS article";
-  let list: {
-    id: string | undefined;
-    product: string;
-    details: string;
-    price: string;
-    url: string | undefined;
-    imageURL: string | undefined;
-  }[] = [];
+  let list: Product[] = [];
+  
   const $ = cheerio.load(await page.content());
   if (!(await page.$(selector))) {
     productRequestCounter++;
     console.log("No article found, retrying... " + productRequestCounter);
     if (productRequestCounter < 3) {
       await delay(2000);
-      await scrapeProducts(page);
+      return await scrapeProducts(page);
     } else {
       console.log("No article found, aborting...");
       productRequestCounter = 0;
     }
-    return;
+    return [];
   }
   const articleTags = $(selector);
-  articleTags.each((i, el) => {
+  for (let i = 0; i < articleTags.length; i++) {
+    const el = articleTags[i];
+    // await checkDisponibility(page, el);
     const imageURL = $(el).find("img").attr("src");
-    const product = $(el).find("p.sc-2e9036-0.cNsIaf").text();
+    const brand = $(el).find("p.sc-2e9036-0.cNsIaf strong").text();
+    const product = $(el).find("p.sc-2e9036-0.cNsIaf span").text();
     const details = $(el).find("p.sc-b3dc936d-9.BunLw").text();
     const priceString = $(el).find("span.sc-3ffcdfc9-1.cHHHJV").text();
     const url = $(el).find("a.sc-d9c28d7f-0.btOvGx").attr("href");
-    const id = url?.match(/[^-]*$/)?.pop()?.slice(0, 8);
+    const id = url
+      ?.match(/[^-]*$/)
+      ?.pop()
+      ?.slice(0, 8);
     const price = priceString.replace("CHF", "");
-    list.push({ id, product, details, price, url, imageURL });
-  });
+    list.push({ id, brand, product, details, price, url, imageURL });
+  }
   return list;
 };
 
-const openProductsPage = async (browser: any, url: string) => {
+const checkDisponibility = async (page: any, el: any): Promise<boolean> => {
+  
+  return false;
+};
+
+const openProductsPage = async (
+  browser: any,
+  url: string
+): Promise<Product[]> => {
   const page = await browser.newPage();
   await page.goto(url, { waitUntil: "domcontentloaded" });
   await delay(500);
