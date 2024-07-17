@@ -1,23 +1,13 @@
-import puppeteer from "puppeteer-extra";
-import StealthPlugin from "puppeteer-extra-plugin-stealth";
 import * as fs from "fs";
-import { openProductsPage } from "../../../../lib/scraping";
-
-puppeteer.use(StealthPlugin());
+import getProducts from "../../../../lib/products";
 
 export async function GET() {
   try {
-    const browser = await puppeteer.launch({
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
-    });
-    const list = await openProductsPage(
-      browser,
-      "https://www.galaxus.ch/fr/s7/producttype/nutrition-sportive-2800"
-    );
-    await browser.close();
-    const data = JSON.stringify(list);
+    const categories = JSON.parse(fs.readFileSync("./data/categories.json", "utf8"));
+    const products = await getProducts(categories);
+    const data = JSON.stringify(products);
     fs.writeFileSync("./data/products.json", data);
-    return new Response(JSON.stringify(list), {
+    return new Response(data, {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });

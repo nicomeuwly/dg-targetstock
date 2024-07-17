@@ -11,6 +11,8 @@ export default function Home() {
   const getProducts = async () => {
     setData([]);
     setLoading(true);
+    setTime(0);
+    setRunning(true);
     try {
       const res = await fetch("/api/data/products");
       const data = await res.json();
@@ -19,6 +21,7 @@ export default function Home() {
       console.error("Failed to fetch data:", error);
     } finally {
       setLoading(false);
+      setRunning(false);
     }
   };
   const getCategories = async () => {
@@ -41,7 +44,7 @@ export default function Home() {
       }, 1000);
       return () => clearInterval(interval);
     }
-  });
+  }, [running]);
   return (
     <main className="w-screen h-screen">
       <header className="flex justify-between items-center bg-white shadow-md w-full p-4">
@@ -49,9 +52,12 @@ export default function Home() {
           <img src="/logo.png" alt="DG-Logo" className="h-12" />
           <h1 className="text-xl h-fit">Target Stock</h1>
         </div>
-        <p>
-          {categories.length} categories (Time : {time} sec)
-        </p>
+        <div className="flex gap-4">
+          <p>
+            {categories.length} categories | {data.length} products
+          </p>
+          <p>(Time : {time} sec)</p>
+        </div>
         <div className="flex gap-8">
           <button
             onClick={getProducts}

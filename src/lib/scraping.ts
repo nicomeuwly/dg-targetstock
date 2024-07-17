@@ -18,12 +18,14 @@ type Product = {
   price: string;
   url: string | undefined;
   imageURL: string | undefined;
+  category: string;
+  categoryUrl: string | undefined;
 };
 
 const scrapeProducts = async (page: any): Promise<Product[]> => {
   const selector = "div.sc-5d2f6f43-1.jwLEDS article";
   let list: Product[] = [];
-  
+
   const $ = cheerio.load(await page.content());
   if (!(await page.$(selector))) {
     productRequestCounter++;
@@ -40,25 +42,26 @@ const scrapeProducts = async (page: any): Promise<Product[]> => {
   const articleTags = $(selector);
   for (let i = 0; i < articleTags.length; i++) {
     const el = articleTags[i];
-    // await checkDisponibility(page, el);
     const imageURL = $(el).find("img").attr("src");
     const brand = $(el).find("p.sc-2e9036-0.cNsIaf strong").text();
     const product = $(el).find("p.sc-2e9036-0.cNsIaf span").text();
     const details = $(el).find("p.sc-b3dc936d-9.BunLw").text();
     const priceString = $(el).find("span.sc-3ffcdfc9-1.cHHHJV").text();
-    const url = $(el).find("a.sc-d9c28d7f-0.btOvGx").attr("href");
+    const url = $(el).find("a.sc-a1453065-0.iqBVXt").attr("href");
+    const category = $(el).find("a.sc-ccd25b80-0.beNCEW.sc-ce74e31a-6.fJUqGN").text();
+    const categoryUrl = $(el).find("a.sc-ccd25b80-0.beNCEW.sc-ce74e31a-6.fJUqGN").attr("href");
     const id = url
       ?.match(/[^-]*$/)
       ?.pop()
       ?.slice(0, 8);
     const price = priceString.replace("CHF", "");
-    list.push({ id, brand, product, details, price, url, imageURL });
+    list.push({ id, brand, product, details, price, url, imageURL, category, categoryUrl });
   }
   return list;
 };
 
 const checkDisponibility = async (page: any, el: any): Promise<boolean> => {
-  
+
   return false;
 };
 
