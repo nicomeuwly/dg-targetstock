@@ -61,13 +61,15 @@ export default function Home() {
         <div className="flex gap-8">
           <button
             onClick={getProducts}
-            className="rounded-md p-2 bg-gray-700 hover:bg-gray-900 text-white"
+            disabled={running}
+            className="rounded-md p-2 bg-gray-700 hover:bg-gray-900 text-white disabled:opacity-50"
           >
             Get products
           </button>
           <button
             onClick={getCategories}
-            className="rounded-md p-2 bg-gray-700 hover:bg-gray-900 text-white"
+            disabled={running}
+            className="rounded-md p-2 bg-gray-700 hover:bg-gray-900 text-white disabled:opacity-50"
           >
             Get categories
           </button>
@@ -77,7 +79,8 @@ export default function Home() {
               setCategories([]);
               setTime(0);
             }}
-            className="rounded-md p-2 bg-gray-700 hover:bg-gray-900 text-white"
+            disabled={running}
+            className="rounded-md p-2 bg-gray-700 hover:bg-gray-900 text-white disabled:opacity-50"
           >
             Delete data
           </button>

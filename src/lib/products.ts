@@ -4,13 +4,26 @@ import StealthPlugin from "puppeteer-extra-plugin-stealth";
 
 puppeteer.use(StealthPlugin());
 
+interface Product {
+    id: number;
+    product: string;
+    brand: string;
+    details: string;
+    price: number;
+    imageURL: string;
+    url: string;
+    category: string;
+    categoryUrl: string;
+    scrapedCategory: string;
+}
+
 const getProducts = async (categories: any[]) => {
     try {
         const browser = await puppeteer.launch({
             args: ["--no-sandbox", "--disable-setuid-sandbox"],
         });
         const page = await browser.newPage();
-        const tempCategories = categories.slice(0, 4);
+        const tempCategories = categories.slice(0, 1);
 
         const products = await getProductsList(page, tempCategories);
         const stocks = await getProductsAvailability(page, products);
@@ -46,7 +59,7 @@ const getProductsDetails = async (page: any, url: string) => {
         const productUrl = await article.$eval("a.sc-a1453065-0.iqBVXt", (el: any) => el.getAttribute("href"));
         const category = await article.$eval("a.sc-ccd25b80-0.beNCEW.sc-ce74e31a-6.fJUqGN", (el: any) => el.textContent);
         const categoryUrl = await article.$eval("a.sc-ccd25b80-0.beNCEW.sc-ce74e31a-6.fJUqGN", (el: any) => el.getAttribute("href"));
-        const id = url
+        const id = productUrl
             ?.match(/[^-]*$/)
             ?.pop()
             ?.slice(0, 8);
@@ -68,34 +81,56 @@ const getProductsList = async (page: any, categories: any[]) => {
 
 const getProductsAvailability = async (page: any, products: any[]) => {
     const stocks: any[] = [];
-    console.log(products.length);
+    console.log("Total products : " + products.length);
+
     for (const product of products) {
-        try {
-            await page.goto("https://www.galaxus.ch" + product.url, { waitUntil: "domcontentloaded" });
+        await openProductPage(page, product, stocks);
 
-            const availabilityTag = await page.$("button.sc-58bde996-0.bQTVcy");
-            if (availabilityTag) {
-                await availabilityTag.click();
-                const availability = await page.waitForSelector("div.sc-d0d34be1-2.dMCIvG");
-                if (availability) {
-                    const closeTag = await availability.$("button.sc-2f97377a-0.iDwhgK.sc-d0d34be1-3.fgYBWv");
-                    const locations = await availability.$$("strong");
-                    const stockLevelDiv = await availability.$eval("div.sc-dbd9c505-1.fwiPKQ", (el: any) => el.textContent);
-                    const stockLevel = parseInt(stockLevelDiv.match(/\d+/)[0]);
-                    const isPickupAvailable = locations.length > 0;
-                    if (stockLevel >= 10 && isPickupAvailable) {
-                        stocks.push({ ...product, pickup: isPickupAvailable, stockLevel });
-
-                    }
-
-                    await closeTag?.click();
-                }
-            }
-        } catch (err) {
-            console.error(`Error retrieving availability for product no ${products.indexOf(product)} (https://www.galaxus.ch${product.url})`);
-        }
+        // Delay between each product to avoid overloading the server
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        retryCounter = 0;
     }
+
     return stocks;
+}
+
+let retryCounter = 0;
+
+const openProductPage = async (page: any, product: Product, stocks: Product[]) => {
+    try {
+        await page.goto("https://www.galaxus.ch" + product.url, { waitUntil: "domcontentloaded" });
+
+        await page.$eval("button.sc-58bde996-0.bQTVcy", (el: HTMLElement) => el.click())
+
+        await page.waitForSelector("div.sc-d0d34be1-2.dMCIvG", { visible: true, timeout: 5000 });
+        const availability = await page.$("div.sc-d0d34be1-2.dMCIvG");
+
+        if (availability) {
+            const locations = await availability.$$("strong");
+            const stockLevel = await availability.$eval("div.sc-dbd9c505-1.fwiPKQ", (el: any) => el.textContent);
+
+            if (stockLevel.includes("10 items") && locations.length > 0) {
+                stocks.push(product);
+            }
+
+            const closeButton = await page.waitForSelector("button.sc-2f97377a-0.iDwhgK.sc-d0d34be1-3.fgYBWv", { visible: true, timeout: 5000 });
+            await closeButton.click();
+        } else {
+            console.error(`Availability div not found for product ${product.id}`);
+        }
+
+    } catch (error: any) {
+        console.error(`Error processing product ${product.id}:`, error);
+
+        // Retrying mechanism for network errors
+        if ((error.message.includes('net::ERR_HTTP2_PROTOCOL_ERROR') || error.message.includes('Node is detached from document')) && retryCounter < 3) {
+            retryCounter++;
+            console.log(`Retrying product https://www.galaxus.ch${product.url}...`);
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            await openProductPage(page, product, stocks);
+        }
+
+    }
 }
 
 export default getProducts;
