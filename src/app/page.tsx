@@ -113,7 +113,7 @@ export default function Home() {
                   className="w-full h-full absolute z-10"
                 ></a>
                 <img
-                  src={"https://www.galaxus.ch" + item.imageURL}
+                  src={item.imageURL.includes("static.galax.us") ? item.imageURL : "https://www.galaxus.ch" + item.imageURL}
                   alt={item.product}
                   className="h-32"
                 />

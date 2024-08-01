@@ -4,7 +4,7 @@ import * as fs from "fs";
 import {
   openCategoriesPage,
   openCategoryLinks,
-} from "../../../../lib/scraping";
+} from "../../../../lib/scraping/categories";
 
 puppeteer.use(StealthPlugin());
 

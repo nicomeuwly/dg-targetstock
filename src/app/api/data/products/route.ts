@@ -1,5 +1,5 @@
 import * as fs from "fs";
-import getProducts from "../../../../lib/products";
+import getProducts from "../../../../lib/scraping/products";
 
 export async function GET() {
   try {

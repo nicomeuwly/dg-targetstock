@@ -1,4 +1,3 @@
-import { get } from "http";
 import puppeteer from "puppeteer-extra";
 import StealthPlugin from "puppeteer-extra-plugin-stealth";
 
@@ -23,7 +22,7 @@ const getProducts = async (categories: any[]) => {
             args: ["--no-sandbox", "--disable-setuid-sandbox"],
         });
         const page = await browser.newPage();
-        const tempCategories = categories.slice(0, 1);
+        const tempCategories = categories.slice(0, 5);
 
         const products = await getProductsList(page, tempCategories);
         const stocks = await getProductsAvailability(page, products);
@@ -56,9 +55,9 @@ const getProductsDetails = async (page: any, url: string) => {
         const detailsTemp = await article.$("p.sc-ce74e31a-9.gcbXXJ");
         const details = detailsTemp ? await detailsTemp.evaluate((el: any) => el.textContent) : "";
         const imageURL = await article.$eval("img", (el: any) => el.getAttribute("src"));
-        const productUrl = await article.$eval("a.sc-a1453065-0.iqBVXt", (el: any) => el.getAttribute("href"));
-        const category = await article.$eval("a.sc-ccd25b80-0.beNCEW.sc-ce74e31a-6.fJUqGN", (el: any) => el.textContent);
-        const categoryUrl = await article.$eval("a.sc-ccd25b80-0.beNCEW.sc-ce74e31a-6.fJUqGN", (el: any) => el.getAttribute("href"));
+        const productUrl = await article.$eval("a.sc-b0fdbb10-0.iNiATr", (el: any) => el.getAttribute("href"));
+        const category = await article.$eval("a.sc-ccd25b80-0.beNCEW.sc-430e9524-6.gSfbKC", (el: any) => el.textContent);
+        const categoryUrl = await article.$eval("a.sc-ccd25b80-0.beNCEW.sc-430e9524-6.gSfbKC", (el: any) => el.getAttribute("href"));
         const id = productUrl
             ?.match(/[^-]*$/)
             ?.pop()
@@ -86,7 +85,6 @@ const getProductsAvailability = async (page: any, products: any[]) => {
     for (const product of products) {
         await openProductPage(page, product, stocks);
 
-        // Delay between each product to avoid overloading the server
         await new Promise(resolve => setTimeout(resolve, 1000));
         retryCounter = 0;
     }
@@ -112,9 +110,6 @@ const openProductPage = async (page: any, product: Product, stocks: Product[]) =
             if (stockLevel.includes("10 items") && locations.length > 0) {
                 stocks.push(product);
             }
-
-            const closeButton = await page.waitForSelector("button.sc-2f97377a-0.iDwhgK.sc-d0d34be1-3.fgYBWv", { visible: true, timeout: 5000 });
-            await closeButton.click();
         } else {
             console.error(`Availability div not found for product ${product.id}`);
         }
@@ -122,7 +117,6 @@ const openProductPage = async (page: any, product: Product, stocks: Product[]) =
     } catch (error: any) {
         console.error(`Error processing product ${product.id}:`, error);
 
-        // Retrying mechanism for network errors
         if ((error.message.includes('net::ERR_HTTP2_PROTOCOL_ERROR') || error.message.includes('Node is detached from document')) && retryCounter < 3) {
             retryCounter++;
             console.log(`Retrying product https://www.galaxus.ch${product.url}...`);
