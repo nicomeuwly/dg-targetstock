@@ -4,15 +4,13 @@ This project is part of a Bachelor's thesis in Media Engineering at HEIG-VD, in 
 
 ### Table of Contents
 
-- [Target stock automation project](#target-stock-automation-project)
-    - [Table of Contents](#table-of-contents)
-  - [Getting Started](#getting-started)
-    - [Prerequisites](#prerequisites)
-    - [Installation](#installation)
-    - [Project Structure](#project-structure)
-    - [Technologies Used](#technologies-used)
-    - [API Endpoints](#api-endpoints)
-    - [License](#license)
+- [Getting Started](#getting-started)
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+- [Project Structure](#project-structure)
+- [Technologies Used](#technologies-used)
+- [API Endpoints](#api-endpoints)
+- [License](#license)
 
 ## Getting Started
 
