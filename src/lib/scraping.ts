@@ -4,6 +4,11 @@ let productRequestCounter = 0;
 let categoryRequestCounter = 0;
 let requestCounter = 0;
 
+/**
+ * Delays execution for a specified amount of milliseconds.
+ * @param {number} ms - The number of milliseconds to delay.
+ * @returns {Promise<void>} A promise that resolves after the specified delay.
+ */
 const delay = (ms: number) => {
   return new Promise((resolve) => {
     setTimeout(resolve, ms);
@@ -20,6 +25,11 @@ type Product = {
   imageURL: string | undefined;
 };
 
+/**
+ * Scrapes product data from a page.
+ * @param {any} page - The Puppeteer page object.
+ * @returns {Promise<Product[]>} A promise that resolves to a list of products.
+ */
 const scrapeProducts = async (page: any): Promise<Product[]> => {
   const selector = "div.sc-5d2f6f43-1.jwLEDS article";
   let list: Product[] = [];
@@ -57,11 +67,23 @@ const scrapeProducts = async (page: any): Promise<Product[]> => {
   return list;
 };
 
+/**
+ * Checks the availability of a product element on the page.
+ * @param {any} page - The Puppeteer page object.
+ * @param {any} el - The Cheerio element to check availability for.
+ * @returns {Promise<boolean>} A promise that resolves to a boolean indicating availability.
+ */
 const checkDisponibility = async (page: any, el: any): Promise<boolean> => {
   
   return false;
 };
 
+/**
+ * Opens a product page and scrapes the products.
+ * @param {any} browser - The Puppeteer browser object.
+ * @param {string} url - The URL of the product page to open.
+ * @returns {Promise<Product[]>} A promise that resolves to a list of products.
+ */
 const openProductsPage = async (
   browser: any,
   url: string
@@ -74,6 +96,12 @@ const openProductsPage = async (
   return list;
 };
 
+/**
+ * Scrapes categories from a page.
+ * @param {any} page - The Puppeteer page object.
+ * @param {string} selector - The selector to locate categories.
+ * @returns {Promise<{ category: string; url: string | undefined }[] | undefined>} A promise that resolves to a list of categories.
+ */
 const scrapeCategories = async (page: any, selector: string) => {
   let list: { category: string; url: string | undefined }[] = [];
   const $ = cheerio.load(await page.content());
@@ -98,6 +126,12 @@ const scrapeCategories = async (page: any, selector: string) => {
   return list;
 };
 
+/**
+ * Opens a categories page and scrapes the categories.
+ * @param {any} browser - The Puppeteer browser object.
+ * @param {string} url - The URL of the categories page to open.
+ * @returns {Promise<{ category: string; url: string | undefined }[]>} A promise that resolves to a list of categories.
+ */
 const openCategoriesPage = async (browser: any, url: string) => {
   const page = await browser.newPage();
   await page.goto(url, { waitUntil: "domcontentloaded" });
@@ -111,6 +145,12 @@ const openCategoriesPage = async (browser: any, url: string) => {
   return list;
 };
 
+/**
+ * Opens category links recursively and scrapes the categories.
+ * @param {any} browser - The Puppeteer browser object.
+ * @param {any} list - The list of category links to open.
+ * @returns {Promise<{ category: string; url: string | undefined }[]>} A promise that resolves to a list of categories.
+ */
 const openCategoryLinks = async (browser: any, list: any) => {
   const results: { category: string; url: string | undefined }[] = [];
   for (const item of list) {
