@@ -49,6 +49,10 @@ Ensure you have the following installed on your machine:
 ```
 /target-stock-management
 │
+├── data                        # Scraping route results folder
+│   ├── categories.json         # List of scraping categories
+│   └── products.json           # List of scraping products
+│
 ├── public                      # Static files
 │   └── logo.png                # Logo of the project
 │
