@@ -16,6 +16,11 @@ interface Product {
     scrapedCategory: string;
 }
 
+/**
+ * Fetches the list of products and their availability status from the given categories.
+ * @param {any[]} categories - The list of categories to scrape products from.
+ * @returns {Promise<Product[]>} The list of products with their availability status.
+ */
 const getProducts = async (categories: any[]) => {
     try {
         const browser = await puppeteer.launch({
@@ -38,6 +43,12 @@ const getProducts = async (categories: any[]) => {
     }
 }
 
+/**
+ * Fetches product details from a specific category page.
+ * @param {any} page - The Puppeteer page object.
+ * @param {string} url - The URL of the category page.
+ * @returns {Promise<Product[]>} The list of products with details.
+ */
 const getProductsDetails = async (page: any, url: string) => {
     const filters = url.includes("?") ? "&filter=t_off%3DInStock&so=15" : "?filter=t_off%3DInStock&so=15";
     await page.goto(`https://www.galaxus.ch${url + filters}`, { waitUntil: "domcontentloaded" });
@@ -68,6 +79,12 @@ const getProductsDetails = async (page: any, url: string) => {
     return products;
 }
 
+/**
+ * Fetches the list of products from the given categories.
+ * @param {any} page - The Puppeteer page object.
+ * @param {any[]} categories - The list of categories to scrape products from.
+ * @returns {Promise<Product[]>} The list of products with details.
+ */
 const getProductsList = async (page: any, categories: any[]) => {
     if (categories.length === 0) return [];
     const products: any[] = [];
@@ -78,6 +95,12 @@ const getProductsList = async (page: any, categories: any[]) => {
     return products;
 }
 
+/**
+ * Checks the availability of the given products.
+ * @param {any} page - The Puppeteer page object.
+ * @param {Product[]} products - The list of products to check availability for.
+ * @returns {Promise<Product[]>} The list of products that are available.
+ */
 const getProductsAvailability = async (page: any, products: any[]) => {
     const stocks: any[] = [];
     console.log("Total products : " + products.length);
@@ -94,6 +117,13 @@ const getProductsAvailability = async (page: any, products: any[]) => {
 
 let retryCounter = 0;
 
+/**
+ * Opens the product page and checks its availability.
+ * Retries up to 3 times if certain errors occur.
+ * @param {any} page - The Puppeteer page object.
+ * @param {Product} product - The product to check availability for.
+ * @param {Product[]} stocks - The list to store available products.
+ */
 const openProductPage = async (page: any, product: Product, stocks: Product[]) => {
     try {
         await page.goto("https://www.galaxus.ch" + product.url, { waitUntil: "domcontentloaded" });
