@@ -47,7 +47,7 @@ Ensure you have the following installed on your machine:
 ### Project Structure
 
 ```
-/target-stock-management
+/dg-targetstock
 │
 ├── data                        # Scraping route results folder
 │   ├── categories.json         # List of scraping categories
